@@ -27,7 +27,7 @@ app.get('/', async (req, res, next) => {
   try {
     await Twot.post('statuses/update', { status: stringBuilder(scrappedPage) });
   } catch (e) {
-    return res.status(500).json({ message: 'Failed!' });
+    return next(e);
   }
   
   return res.status(200)
