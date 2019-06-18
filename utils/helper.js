@@ -1,7 +1,16 @@
+const USERNAME_TWITTER = '@gakberbob0t';
+
+const trimTweetLength = (string = '') => string.substring(0, 236) + '...';
+
 module.exports = {
-    stringBuilder: (data = []) => {
+    tweetLast7DaysArtist: (data = []) => {
         let parsedString = 'Seminggu ini saya mendengarkan ';
         data.forEach(string => parsedString += `${string.title}, `);
-        return parsedString;
-    } 
+        return parsedString.length >= 240 ? trimTweetLength(parsedString) : parsedString;
+    },
+    tweetLast7DaysSong: (data = []) => {
+        let parsedString = `${USERNAME_TWITTER} Top 5 lagu yang sering diputar : \n\n`;
+        data.forEach(string => parsedString += `${string.title}\n`);
+        return parsedString.length >= 240 ? trimTweetLength(parsedString) : parsedString;
+    }
 };
