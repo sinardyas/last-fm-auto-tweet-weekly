@@ -33,7 +33,7 @@ app.get('/', async (req, res, next) => {
 
   try {
     scrappedPage = await Scrapper(page, user);
-    console.log(`[${new Date()}] Scrapping process success : ${scrappedPage}`);
+    console.log(`[${new Date()}] Scrapping process success : ${JSON.stringify(scrappedPage, null, 2)}`);
   } catch (e) {
     return next(e);
   }
@@ -42,7 +42,7 @@ app.get('/', async (req, res, next) => {
 
   try {
     tweetArtistResult = await Twot.post('statuses/update', { status: tweetLast7DaysArtist(scrappedPage.sevenDaysArtistData) });
-    console.log(`[${new Date()}] Tweet 7 days artist success : ${tweetArtistResult.data}`);
+    console.log(`[${new Date()}] Tweet 7 days artist success : ${JSON.stringify(tweetArtistResult.data, null, 2)}`);
   } catch (e) {
     return next(e);
   }
@@ -52,7 +52,7 @@ app.get('/', async (req, res, next) => {
       status: tweetLast7DaysSong(scrappedPage.sevenDaysSongData),
       in_reply_to_status_id: tweetArtistResult.data.id_str
     });
-    console.log(`[${new Date()}] Tweet 7 days song success : ${tweetSongResult.data}`);
+    console.log(`[${new Date()}] Tweet 7 days song success : ${JSON.stringify(tweetSongResult.data, null, 2)}`);
   } catch (e) {
     return next(e);
   }
@@ -62,7 +62,7 @@ app.get('/', async (req, res, next) => {
 });
 
 app.use((err, req, res, next) => {
-  console.error(`[${new Date()}] Error : ${err.message}`);
+  console.error(`[${new Date()}] Error : ${JSON.stringify(err.message, null, 2)}`);
   res.status(err.status || 500)
      .json({
         message: err.message || 'Internal server error!',
