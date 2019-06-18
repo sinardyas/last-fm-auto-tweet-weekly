@@ -1,10 +1,12 @@
 require('dotenv').config();
 const express = require('express');
 const Twit = require('twit');
+const puppeteer = require('puppeteer');
 
-const scrapper = require('./utils/scrapper');
-const { stringBuilder } = require('./utils/helper');
+const Scrapper = require('./utils/scrapper');
+const { tweetLast7DaysArtist, tweetLast7DaysSong } = require('./utils/helper');
 
+const port = process.env.PORT;
 const app = express();
 
 const Twot = new Twit({
@@ -15,31 +17,58 @@ const Twot = new Twit({
 });
 
 app.get('/', async (req, res, next) => {
-  let scrappedPage;
   const { user } = req.query;
 
+  let scrappedPage;
+  let tweetArtistResult;
+  let tweetSongResult;
+
+  const browser = await puppeteer.launch({
+    headless: true,
+    args:['--no-sandbox', '--disable-setuid-sandbox']
+  });
+
+  const page = await browser.newPage();
+  await page.setViewport({ width: 1920, height: 926 });
+
   try {
-    scrappedPage = await scrapper(user);    
+    scrappedPage = await Scrapper(page, user);
+    console.log(`[${new Date()}] Scrapping process success : ${scrappedPage}`);
   } catch (e) {
     return next(e);
   }
 
+  await browser.close();
+
   try {
-    await Twot.post('statuses/update', { status: stringBuilder(scrappedPage) });
+    tweetArtistResult = await Twot.post('statuses/update', { status: tweetLast7DaysArtist(scrappedPage.sevenDaysArtistData) });
+    console.log(`[${new Date()}] Tweet 7 days artist success : ${tweetArtistResult.data}`);
+  } catch (e) {
+    return next(e);
+  }
+  
+  try {
+    tweetSongResult = await Twot.post('statuses/update', {
+      status: tweetLast7DaysSong(scrappedPage.sevenDaysSongData),
+      in_reply_to_status_id: tweetArtistResult.data.id_str
+    });
+    console.log(`[${new Date()}] Tweet 7 days song success : ${tweetSongResult.data}`);
   } catch (e) {
     return next(e);
   }
   
   return res.status(200)
-            .json({ data: scrappedPage });
+            .json({ data: scrappedPage, tweet: { tweetArtistResult, tweetSongResult } });
 });
 
 app.use((err, req, res, next) => {
-  res.status(err.status || 500).json({
-    message: err.message || 'Internal server error!',
-  });
+  console.error(`[${new Date()}] Error : ${err.message}`);
+  res.status(err.status || 500)
+     .json({
+        message: err.message || 'Internal server error!',
+     });
 });
 
-app.listen(process.env.PORT, () => console.log('App listen on port 3000'));
+app.listen(port, () => console.log(`App listen on port ${port}`));
 
 module.exports = app;
