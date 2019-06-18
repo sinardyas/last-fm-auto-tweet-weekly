@@ -49,7 +49,7 @@ app.get('/', async (req, res, next) => {
   
   try {
     tweetSongResult = await Twot.post('statuses/update', {
-      status: tweetLast7DaysSong(scrappedPage.sevenDaysSongData),
+      status: tweetLast7DaysSong(scrappedPage.sevenDaysSongData, tweetArtistResult.data.user.screen_name),
       in_reply_to_status_id: tweetArtistResult.data.id_str
     });
     console.log(`[${new Date()}] Tweet 7 days song success : ${JSON.stringify(tweetSongResult.data, null, 2)}`);
