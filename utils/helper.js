@@ -1,5 +1,3 @@
-const USERNAME_TWITTER = '@gakberbob0t';
-
 const trimTweetLength = (string = '') => string.substring(0, 236) + '...';
 
 module.exports = {
@@ -8,8 +6,8 @@ module.exports = {
         data.forEach(string => parsedString += `${string.title}, `);
         return parsedString.length >= 240 ? trimTweetLength(parsedString) : parsedString;
     },
-    tweetLast7DaysSong: (data = []) => {
-        let parsedString = `${USERNAME_TWITTER} Top 5 lagu yang sering diputar : \n\n`;
+    tweetLast7DaysSong: (data = [], userName) => {
+        let parsedString = `${userName} Top 5 lagu yang sering diputar : \n\n`;
         data.forEach(string => parsedString += `${string.title}\n`);
         return parsedString.length >= 240 ? trimTweetLength(parsedString) : parsedString;
     }
