@@ -10,5 +10,15 @@ module.exports = {
         let parsedString = `@${userName} Top 5 lagu yang sering diputar : \n\n`;
         data.forEach(string => parsedString += `${string.title}\n`);
         return parsedString.length >= 240 ? trimTweetLength(parsedString) : parsedString;
+    },
+    tweetLast7DaysArtistV2: (data = []) => {
+        let parsedString = 'Seminggu ini saya mendengarkan ';
+        data.forEach(string => parsedString += `${string.artist}, `);
+        return parsedString.length >= 240 ? trimTweetLength(parsedString) : parsedString;
+    },
+    tweetLast7DaysSongV2: (data = [], userName) => {
+        let parsedString = `@${userName} Top 5 lagu yang sering diputar : \n\n`;
+        data.forEach(string => parsedString += `${string.artist} - ${string.song}\n`);
+        return parsedString.length >= 240 ? trimTweetLength(parsedString) : parsedString;
     }
 };

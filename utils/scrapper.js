@@ -1,3 +1,5 @@
+const luwak = require('luwak');
+
 const sevenDaysArtistUrl = (user) => `https://www.last.fm/user/${user}/library/artists?date_preset=LAST_7_DAYS`;
 const sevenDaysSongUrl = (user) => `https://www.last.fm/user/${user}/library/tracks?date_preset=LAST_7_DAYS`;
 
@@ -19,7 +21,7 @@ const SevenDaysSong = async (page, user) => {
     await page.goto(sevenDaysSongUrl(user));
 
     const listeningData = await page.evaluate(() => Array
-        .from(document.querySelectorAll('.link-block-target'))
+        .from(document.querySelectorAll('.chartlist .chartlist-name > a'))
         .map(data => ({
             title: data.getAttribute('title'),
             link: data.getAttribute('href')
@@ -29,11 +31,44 @@ const SevenDaysSong = async (page, user) => {
     return listeningData;
 };
 
-module.exports = async (page, user) => {
+const SevenDaysArtistV2 = async (user) => {    
+    let result = [];
+    try {
+       result = await luwak(sevenDaysArtistUrl(user))
+        .select([{
+          '$root': 'table.chartlist tbody tr',
+          artist: '.chartlist-name a@title'
+        }])
+        .fetch();
+    } catch (e) {
+        throw e.message;
+    }    
+
+    return result.slice(0, 10);
+}
+
+const SevenDaysSongV2 = async (user) => {    
+    let result = [];
+    try {
+       result = await luwak(sevenDaysSongUrl(user))
+        .select([{
+          '$root': 'table.chartlist tbody tr',
+          artist: '.chartlist-artist a@title',
+          song: '.chartlist-name a@title'
+        }])
+        .fetch();
+    } catch (e) {
+        throw e.message;
+    }    
+
+    return result.slice(0, 5);
+}
+
+module.exports = async (page = null, user) => {
     try {
         return {
-            sevenDaysArtistData: await SevenDaysArtist(page, user),
-            sevenDaysSongData: await SevenDaysSong(page, user)
+            sevenDaysArtistData: await SevenDaysArtistV2(user),
+            sevenDaysSongData: await SevenDaysSongV2(user)
         }
     } catch (e) {
         throw e;
