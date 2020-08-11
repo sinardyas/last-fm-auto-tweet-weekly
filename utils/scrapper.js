@@ -36,8 +36,8 @@ const SevenDaysArtistV2 = async (user) => {
     try {
        result = await luwak(sevenDaysArtistUrl(user))
         .select([{
-          '$root': 'table.chartlist tbody tr',
-          artist: '.chartlist-name a@title'
+            '$root': 'table.chartlist tbody tr',
+            artist: '.chartlist-name a@title'
         }])
         .fetch();
     } catch (e) {
@@ -64,7 +64,7 @@ const SevenDaysSongV2 = async (user) => {
     return result.slice(0, 5);
 }
 
-module.exports = async (page = null, user) => {
+module.exports = async (user) => {
     try {
         return {
             sevenDaysArtistData: await SevenDaysArtistV2(user),
